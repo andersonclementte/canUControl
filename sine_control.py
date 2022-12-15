@@ -35,6 +35,29 @@ class Control:
 		self.verbose = verbose
 		self.time = 0.0
 
+	def predictPosition(x, y, ut1, ut2, stateFunction, steps, dt):
+		states = [ut1, ut2]
+		statesLen = len(states)
+		positions = []
+		position = [x, y]
+		for i in range(steps):
+			positions.append(position[0], position[1])
+			index = round(statesLen*i/steps)
+			u = states[index]
+			shazan = stateFunction(position[0], position[1], u)
+			position[0] += shazan[0]*dt
+			position[1] += shazan[1]*dt
+		return positions
+	
+	def getTarget(targetX, targetY, positions):
+		distance = 100000000.0
+		for i in range(len(positions)):
+			position = positions[i]
+			d = ((position[0]-targetX)*(position[0]-targetX) + (position[1]-targetY)*(position[1]-targetY)) + 0.001*i
+			if d < distance:
+				distance = d
+		return distance
+
 	def control(self, received):
 		#Received possui os parametros: x, y da posição
 		#o mapa e o level para retornar a função de controle da matriz math
@@ -47,10 +70,12 @@ class Control:
 
 		controlSignal = 0.0
 		dMin = 100000000.0
-		for ut1 = -setValMax; ut1 < setValMax; ut1 += 0.1:
-			for ut2 = -setValMax; ut2 < setValMax; ut2 += 0.1:
-				#TODO position = predictPosition(x, y, ut1, ut2, stateFunction, 100, 0.1) 
-				#TODO distance = calculateClosest(targerX, targerY, position)
+		for ut1 in range(-setValMax, setValMax, 0.1):
+		# for ut1 = -setValMax; ut1 < setValMax; ut1 += 0.1:
+			for ut2 in range(-setValMax, setValMax, 0.1):
+			# for ut2 = -setValMax; ut2 < setValMax; ut2 += 0.1:
+				position = self.predictPosition(x, y, ut1, ut2, stateFunction, 100, 0.1) 
+				distance = self.getTarget(targerX, targerY, position)
 				pass
 		pass
 
